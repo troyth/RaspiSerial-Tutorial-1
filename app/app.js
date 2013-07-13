@@ -68,30 +68,30 @@ board.on("ready", function() {
   });
 
 
-  //serve all host connections
-  io.sockets.on('connection', function(socket){
-    console.log("Socket connected"); 
-    socket.emit('connected', 123);
+  // "read" get the current reading from the photoresistor
+  // and store the value in photovalue
+  photoresistor.on("read", function( err, value ) {
+    console.log( value, this.normalized );
+    io.emit('sendIt', value );
 
-    // "read" get the current reading from the photoresistor
-    // and store the value in photovalue
-    photoresistor.on("read", function( err, value ) {
-      console.log( value, this.normalized );
-      socket.emit('sendData', value );
-
-    });
-
-   
   });
-
-
-
-
-
-    
 
     
 });
+
+
+//serve all host connections
+io.sockets.on('connection', function(socket){
+  console.log("Socket connected"); 
+  socket.emit('connected', 123); 
+
+  io.on('sendIt', function(val){
+    console.log('');
+    console.log('***data to send is '+ val);
+    socket.emit('sendData', val);
+  });
+});
+
 
 
 
