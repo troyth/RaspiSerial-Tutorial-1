@@ -42,7 +42,9 @@ var io = require('socket.io').listen(server);
 
 
 var five = require("johnny-five"),
-    board, photoresistor, photovalue, INTERVAL_ID;
+    board, photoresistor, INTERVAL_ID;
+
+var photovalue = 0;
 
 board = new five.Board();
  
@@ -71,6 +73,7 @@ board.on("ready", function() {
   });
 
   // "read" get the current reading from the photoresistor
+  // and store the value in photovalue
   photoresistor.on("read", function( err, value ) {
     console.log( value, this.normalized );
     photovalue = value;
@@ -79,6 +82,8 @@ board.on("ready", function() {
     
 });
 
+
+//serve all host connections
 io.sockets.on('connection', function(socket){
   console.log("Socket connected"); 
   socket.emit('connected', 123);
