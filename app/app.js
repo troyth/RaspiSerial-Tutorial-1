@@ -33,40 +33,36 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/users', user.list);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+
+var server = http.createServer(app).listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
 });
-
-/*
-var five = require("johnny-five"),
-    board, led;
-
-board = new five.Board();
-
-board.on("ready", function() {
-
-  // Create a standard `led` hardware instance
-  led = new five.Led({
-    pin: 13
+ 
+var io = require('socket.io').listen(server);
+ 
+  /**
+ * Server and socket started, below are all my listeners and emitters
+ */
+ 
+io.sockets.on('connection', function(socket){
+  console.log("Socket connected"); 
+  socket.emit('connected', 123);
+ 
+  sp.on('close', function (err) {
+    console.log('port closed');
   });
-
-  // "on" turns the led _on_
-  led.on();
-
-  // "off" turns the led _off_
-  led.off();
-
-  // Turn the led back on after 3 seconds (shown in ms)
-  this.wait( 3000, function() {
-
-    led.on();
-    this.wait( 3500, function(){
-    	led.off();
-    })
-
+ 
+  sp.on('error', function (err) {
+    console.error("error", err);
+  });
+ 
+  sp.on('open', function () {
+    console.log('port opened...');
   });
 });
-*/
+
+
+
 
 var five = require("johnny-five"),
     board, photoresistor;
@@ -91,6 +87,11 @@ board.on("ready", function() {
   // "read" get the current reading from the photoresistor
   photoresistor.on("read", function( err, value ) {
     console.log( value, this.normalized );
+
+    socket.emit('sendData', value );
+
+
+
   });
 });
 

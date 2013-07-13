@@ -3,9 +3,28 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
   </head>
   <body>
     <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <ul id="list">
+    	<li>Starting</li>
+    </ul>
+
+
+ 
+  <script type="text/javascript"> 
+    var socket = io.connect('http://169.254.0.2:3000');
+    socket.on('connected', function(data) {    
+      console.log('Connected, this is what I received : ', data);
+      }); 
+
+    // when you get a receiveSerial event, do this 
+    socket.on('sendData', function (data) {    
+      console.log(data); //Check the console in chrome tools to see this
+      $("#list").append('<li>'+data+'</li>');
+    });  
+  </script>
   </body>
 </html>
