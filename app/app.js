@@ -79,7 +79,7 @@ board.on("ready", function() {
     photoresistor.on("read", function( err, value ) {
       console.log( value, this.normalized );
 
-      socket.emit('sendData', value );
+      socket.emit('sendData', this.normalized );
 
 
 
