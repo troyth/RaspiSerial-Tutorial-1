@@ -57,7 +57,7 @@ board.on("ready", function() {
   // Create a new `photoresistor` hardware instance.
   photoresistor = new five.Sensor({
     pin: "A2",
-    freq: 1000//originally 250, assuming this is in millisec
+    freq: 250//originally 250, assuming this is in millisec
   });
 
   // Inject the `sensor` hardware into
@@ -72,7 +72,7 @@ board.on("ready", function() {
   // and store the value in photovalue
   photoresistor.on("read", function( err, value ) {
     console.log( value, this.normalized );
-    io.emit('sendIt', value );
+    io.emit('sendIt', this.normalized );
 
   });
 
