@@ -52,17 +52,12 @@ board = new five.Board();
  * Server and socket started, below are all my listeners and emitters
  */
 
-
-
-
-
-
 board.on("ready", function() {
 
   // Create a new `photoresistor` hardware instance.
   photoresistor = new five.Sensor({
     pin: "A2",
-    freq: 250
+    freq: 1000//originally 250, assuming this is in millisec
   });
 
   // Inject the `sensor` hardware into
@@ -72,26 +67,32 @@ board.on("ready", function() {
     pot: photoresistor
   });
 
-  // "read" get the current reading from the photoresistor
-  // and store the value in photovalue
-  photoresistor.on("read", function( err, value ) {
-    console.log( value, this.normalized );
-    photovalue = value;
+
+  //serve all host connections
+  io.sockets.on('connection', function(socket){
+    console.log("Socket connected"); 
+    socket.emit('connected', 123);
+
+    // "read" get the current reading from the photoresistor
+    // and store the value in photovalue
+    photoresistor.on("read", function( err, value ) {
+      console.log( value, this.normalized );
+      socket.emit('sendData', value );
+
+    });
+
+   
   });
+
+
+
+
+
+    
 
     
 });
 
 
-//serve all host connections
-io.sockets.on('connection', function(socket){
-  console.log("Socket connected"); 
-  socket.emit('connected', 123);
 
-  INTERVAL_ID = setInterval(function(){
-    socket.emit('sendData', photovalue );
-  }, 500);
-
- 
-});
 
