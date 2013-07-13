@@ -1,5 +1,6 @@
 body {
   padding: 0;
+  margin: 0;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 a {
@@ -7,6 +8,13 @@ a {
 }
 #main {
   display: block;
-  width: 1440px;
-  height: 800px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sample {
+  display: inline-block;
+  float: left;
+  margin: 0;
+  padding: 0;
 }
