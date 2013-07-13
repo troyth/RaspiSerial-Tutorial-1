@@ -39,35 +39,21 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 });
  
 var io = require('socket.io').listen(server);
- 
-  /**
- * Server and socket started, below are all my listeners and emitters
- */
- 
-io.sockets.on('connection', function(socket){
-  console.log("Socket connected"); 
-  socket.emit('connected', 123);
- 
-  sp.on('close', function (err) {
-    console.log('port closed');
-  });
- 
-  sp.on('error', function (err) {
-    console.error("error", err);
-  });
- 
-  sp.on('open', function () {
-    console.log('port opened...');
-  });
-});
-
-
 
 
 var five = require("johnny-five"),
     board, photoresistor;
 
 board = new five.Board();
+ 
+  /**
+ * Server and socket started, below are all my listeners and emitters
+ */
+
+
+
+
+
 
 board.on("ready", function() {
 
@@ -84,14 +70,23 @@ board.on("ready", function() {
     pot: photoresistor
   });
 
-  // "read" get the current reading from the photoresistor
-  photoresistor.on("read", function( err, value ) {
-    console.log( value, this.normalized );
 
-    socket.emit('sendData', value );
+  io.sockets.on('connection', function(socket){
+    console.log("Socket connected"); 
+    socket.emit('connected', 123);
+
+    // "read" get the current reading from the photoresistor
+    photoresistor.on("read", function( err, value ) {
+      console.log( value, this.normalized );
+
+      socket.emit('sendData', value );
 
 
 
+    });
+   
   });
+
+    
 });
 
