@@ -57,7 +57,7 @@ board.on("ready", function() {
   // Create a new `photoresistor` hardware instance.
   photoresistor = new five.Sensor({
     pin: "A2",
-    freq: 250//originally 250, assuming this is in millisec
+    freq: 60000//originally 250, assuming this is in millisec
   });
 
   // Inject the `sensor` hardware into
