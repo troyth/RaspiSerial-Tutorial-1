@@ -1,15 +1,14 @@
 {
-  "name": "application-name",
+  "name": "raspi-serial-tutorial-1",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "sudo node app.js"
   },
   "dependencies": {
     "express": "3.3.4"
     , "ejs": "*"
     , "less-middleware": "*"
-    , "serialport": "*"
     , "socket.io": "*"
     , "johnny-five": "*"
   }
