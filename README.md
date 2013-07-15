@@ -22,6 +22,7 @@ This tutorial prints vertical bands to a webpage depending on light levels in a 
 ##Hardware Diagram
 
 ![docs/images/RaspiSerial-Tutorial-1-hardware.png](docs/assets/RaspiSerial-Tutorial-1-hardware.png)
+[docs/assets/RaspiSerial-Tutorial-1-hardware.ai](docs/assets/RaspiSerial-Tutorial-1-hardware.ai)
 
 ##Setup Instructions
 
