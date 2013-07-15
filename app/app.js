@@ -1,11 +1,8 @@
-
 /**
- *  Module dependencies
- *
- *  Node.js uses the Common.js style of Asynchronous Module Definitions (AMD), which assigns a variable,
- *  such as "express" below, to the exported objects of a module (another javascript file) through the
- *  require() function.
- */
+ * Here we set up the main module dependencies. Node.js uses the Common.js style of Asynchronous Module 
+ * Definitions (AMD), which assigns a variable, such as "express" below, to the exported objects of a 
+ * module (another javascript file) through the require() function.
+**/
 var express = require('express')
   , routes = require('./routes')
   , http = require('http')
@@ -17,7 +14,6 @@ var express = require('express')
 * that we need to setup and run an Express.js web server.
 *
 **/
-
 var app = express();
 
 /**
@@ -97,57 +93,142 @@ var io = require('socket.io').listen(server);
 
 /**
 *
-* Set up the Johnny-Five module
+* Set up the Johnny-Five module. This module builds on top of the Serialport module, which allows you to communicate
+* using serial ports on the computer it is installed on (in this case, a Raspberry Pi), including the USB port.
+* It also builds on the firmata module, which can communicate with an Arduino that has loaded the StandardFirmata
+* sketch. Below you will include the johnny-five module (which in turn loads the seriaports and firmata modules),
+* and instantiate the other variables you will need.
+*
+* Note: Johnny-Five has a number of pre-built examples for connecting to well-known sensors and actuators, such as a 
+* photoresistor as we are using here. See https://github.com/rwldrn/johnny-five/blob/master/docs/photoresistor.md
 *
 **/
-
 var five = require("johnny-five"),
     board, photoresistor, INTERVAL_ID;
 
-var photovalue = 0;
-
+/**
+*
+* The johnny-five module exports a function called Board() that you will invoke here and attach the output of to
+* the variable board. From the board variable you can thereafter set up a sensor on a particular pin that will 
+* use the firmata module to read the analog inputs from the Arduino, and use the serialport module to send these
+* event signals along the serial cable that connects the Arduino to the Raspberry Pi.
+*
+* Here, you can think of board as the Arduino board, which has a series of input and output pins to and from which
+* you can use the board object to read and write values.
+*
+**/
 board = new five.Board();
- 
-  /**
- * Server and socket started, below are all my listeners and emitters
- */
 
+/**
+*
+* Here you will set up an event listener on the board. Javascript is an asynchronous language, meaning that at any
+* point in time it can respond to inputs, rather than other blocking/synchronous languages that execute from top
+* to bottom of the code and cannot handle unexpected purturbations. The way to have javascript respond to an
+* unscheduled input is to set a listener, which you can do many ways. Here, we use the on() function.
+*
+* The board.on(param1, param2) function does the following: upon a param1 type of event, execute the param2 function.
+* So, the below code waits for the board to be ready (param1), then executes the anonymous function (param2).
+*
+**/
 board.on("ready", function() {
 
-  // Create a new `photoresistor` hardware instance.
+  /**
+  *
+  * Here you will create a Sensor object defined by the Johnny-Five module and assign it to the photoresistor
+  * variable. You will initialize which pin it connects to, and how often it will trigger a "read" event
+  * with its value using the freq attribute, which is measured in milliseconds.
+  *
+  **/
+  
   photoresistor = new five.Sensor({
-    pin: "A2",
-    freq: 60000//originally 250, assuming this is in millisec
+    pin: "A2",//connect to analog pin 2 on the Arduino
+    freq: 60000//update the value every this many milliseconds and trigger a "read" event
   });
 
-  // Inject the `sensor` hardware into
-  // the Repl instance's context;
-  // allows direct command line access
+  /**
+  *
+  * Block comment
+  *
+  
   board.repl.inject({
     pot: photoresistor
-  });
+  });**/
 
 
-  // "read" get the current reading from the photoresistor
-  // and store the value in photovalue
+  /**
+  *
+  * Here you will bind an anonymous function to the photoresistor read event that is triggered
+  * every N milliseconds, as set up above. The anonymous function has two values passed to it:
+  * an error (err), which will be null if there is no error and will contain an error message
+  * if there was a problem, and the value of the analog sensor connected to pin A2 (the photoresistor).
+  * Each time the value is updated, this function will be called with the new value, or an error.
+  *
+  **/
   photoresistor.on("read", function( err, value ) {
-    console.log( value, this.normalized );
-    io.emit('sendIt', this.normalized );
+    /* Here we just log the value to the Raspberry Pi console */
+    console.log( value );
 
+    /**
+    *
+    * This is the key bit of the code that connects the "read" event listener of the photoresistor to
+    * the websocket that will asynchronously send it to any website that is connected to this server
+    * to be updated in real time.
+    * 
+    * Because both the input from the photoresistor and the output to the web socket are asynchronous,
+    * we need to chain up the photoresistor input listener to an emitter that triggers an event
+    * for the web socket. So, whenever a new value comes in that triggers a "read" event, the below
+    * emit() function triggers a "sendIt" event that carries the value of the input as its payload.
+    *
+    **/
+    io.emit('sendIt', value );
   });
-
-    
 });
 
 
-//serve all host connections
+/**
+*
+* Here we set up a listener on the web socket for any new web browser clients that will connect. The
+* "connection" event is triggered each time a new browser navigates to the URL of this app, so the event
+* will be triggered many times if many people around the world visit our URL. When this happens, the
+* anonymous function will be called with one parameter, the new socket that is set up between this server
+* and the new browser client.
+*
+**/
 io.sockets.on('connection', function(socket){
+  /**
+  *
+  * Now that a connection has been made to a new browser client, we begin by sending a test of 123 down
+  * the socket, which the client code will log to the console. We also log "Socket connected" to the
+  * Raspberry Pi console.
+  *
+  **/
   console.log("Socket connected"); 
   socket.emit('connected', 123); 
 
+  /**
+  *
+  * Here we set up the listener for the io "sendIt" event that the photoresistor triggers each time
+  * it reads a new value from the physical sensor input. When the io object emits a "sendIt" event,
+  * the anonymous function is called, which has access to the payload in the parameter called val.
+  *
+  **/
   io.on('sendIt', function(val){
+    /**
+    *
+    * We first log a new line and then the data to send along the web socket to the new browser client
+    * in the Raspberry Pi console.
+    *
+    **/
     console.log('');
     console.log('***data to send is '+ val);
+
+    /**
+    *
+    * Finally, we emit a "sendData" event with the payload of val along the socket to the browser client.
+    * The browser can access this value, the value of the analog photoresistor sensor, by listending for
+    * and handling the "sendData" event.
+    *
+    **/
     socket.emit('sendData', val);
   });
 });
