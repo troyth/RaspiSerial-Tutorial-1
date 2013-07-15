@@ -27,7 +27,7 @@ This tutorial prints vertical bands to a webpage depending on light levels in a 
 1.	Fork this repository
 2.	Clone your forked repository into your ~/2013/site-to-site/tutorials/ folder
 
-	$ sudo git clone https://github.com/<your_git_username>/RaspiSerial-Tutorial-1.git
+		$ sudo git clone https://github.com/<your_git_username>/RaspiSerial-Tutorial-1.git
 
 3.	Connect an Arduino (or clone) to your RasPi through the serial cable (use the USB ports)
 4.	Wire up an Arduino to a photoresistor as illustrated below:
