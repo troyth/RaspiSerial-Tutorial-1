@@ -22,4 +22,7 @@ This tutorial prints vertical bands to a webpage depending on light levels in a 
 ##Setup Diagram
 
 
+##Instructions
 
+1.	blah
+2.	blah
