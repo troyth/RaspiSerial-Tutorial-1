@@ -4,8 +4,8 @@ This tutorial prints vertical bands to a webpage depending on light levels in a 
 
 ##Hardware Dependencies
 
-*	Raspberry Pi running Raspbian Linux
-*	Arduino (Uno, Mega or clone) and assembly (breadboard, resistors, serial cable, etc)
+*	Raspberry Pi model B
+*	Arduino (Uno, Mega or clone) and assembly (breadboard, resistors, serial cable, jumper wires, etc)
 *	Photoresistor
 
 ##Software Dependencies
@@ -19,7 +19,7 @@ This tutorial prints vertical bands to a webpage depending on light levels in a 
 *	Firmata for Arduino
 
 
-##Setup Diagram
+##Hardware Diagram
 
 
 ##Setup Instructions
