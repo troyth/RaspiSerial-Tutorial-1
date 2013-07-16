@@ -142,7 +142,7 @@ board.on("ready", function() {
   
   photoresistor = new five.Sensor({
     pin: "A2",//connect to analog pin 2 on the Arduino
-    freq: 60000//update the value every this many milliseconds and trigger a "read" event
+    freq: 1000//update the value every this many milliseconds and trigger a "read" event
   });
 
   /**
@@ -203,7 +203,7 @@ io.sockets.on('connection', function(socket){
   *
   **/
   console.log("Socket connected"); 
-  socket.emit('connected', 123); 
+  socket.emit('connected', 'You have successfully connected to server thorugh a web socket'); 
 
   /**
   *

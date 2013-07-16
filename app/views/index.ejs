@@ -1,34 +1,184 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <!-- This sets the page title that will be visible in the browser tab, it uses an attribute passed by the render function invoked in the .index() function defined in /routes/index.js -->
     <title><%= title %></title>
+
+    <!-- This includes the style.css stylesheet -->
     <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <!-- This includes the socket.io javascript library -->
     <script src="/socket.io/socket.io.js"></script>
-	<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+    <!-- This includes the latest version of jQuery -->
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
   </head>
   <body>
-    <ul id="main"></ul>
+    <div id="wrapper">
+      <div id="header">
+        <h2>Site to Site Raspberry Pi Serial Tutorial 1</h2>
+        <ul id="titles">
+          <!-- Javascript will be used to print the header titles here -->
+        </ul>
+      </div><!-- /#header -->
+      <div id="main">
+        <ul id="samples">
+          <!-- Javascript will be used to deposit samples here -->
+        </ul><!-- /#time-list -->
 
+      </div><!-- /#main -->
+    </div><!-- /#wrapper -->
  
   <script type="text/javascript"> 
-    $(document).ready(function(){
-      $('#main').height(window.innerHeight);
+    /**
+    *
+    * Here you use the io connect() function to connect to a given server emitting
+    * events through a web socket.
+    *
+    **/
+    var socket = io.connect('http://localhost:3000');
 
-    });
-
-    var socket = io.connect('http://169.254.0.2:3000');
+    /**
+    *
+    * First we bind the 'connected' event, which is a test handshake from the 
+    * server that you can use to see if the connection was successfully made.
+    * Open the console in the developer tools in the browser to see if the
+    * test message was received.
+    *
+    **/
     socket.on('connected', function(data) {    
-      console.log('Connected, this is what I received : ', data);
-      }); 
+      console.log( data );
+    }); 
 
-    // when you get a receiveSerial event, do this 
-    socket.on('sendData', function (data) {    
-    	data = parseInt(data);
+    /**
+    *
+    * Here we bind an anonymous function to handle the 'sendData' event. This event
+    * will be used to send the analog sensor sample data from the server and add
+    * a new colored bar to the browser screen.
+    *
+    **/
+    socket.on('sendData', function (dataString) {
+      /**
+      *
+      * First we print out the dataString, the value sent over the web socket from
+      * the server that corresponds to the analog sensor value, to the browser console
+      * to check that the value arrived and is correct.
+      *
+      **/
+      console.log( dataString );
 
-      $('#main').append('<li class="sample" style="height:100%; width:3px; background-color:rgb(0,0,'+data+')"></li>');
+      /**
+      *
+      * The data will come in string form with a value from 0-1000, so first we
+      * cast the string to an integer using the parseInt() function. We then
+      * normalize the value of data to a value between 0-1 by dividing by the
+      * maximum possible value, 1000.
+      *
+      **/
+    	var data = parseInt(dataString);
+      data = data/1000;
 
-      console.log(data); //Check the console in chrome tools to see this
+      /**
+      *
+      * Here we create a javascript Date object that will give us the current time
+      * according to the timezone of the client browser. This date object will be
+      * used to display the time the analog sensor value was received.
+      *
+      **/
+      var date = new Date();
 
+      /**
+      *
+      * The getXXX() functions - where XXX is seconds, hours, etc -- of the Date object
+      * do not include leading zeros when the value is less than 10, so here we create
+      * a simple helper function that will pad any numerical string (ie. a string that
+      * represents a number) with a leading zero if the string is less than 2 characters
+      * in length. This will be applied below.
+      *
+      **/
+      function pad(numberString){
+        if(numberString.length < 2){
+          return '0'+numberString;
+        }
+      }
+
+      /**
+      *
+      * We will now create the HTML DOM element for a sample that will register the date,
+      * time and analog sensor value. We will use jQuery - denoted by the $ object - to
+      * create a DOM element, add the correct classes and styles and sub elements, and then
+      * prepend this to the top of the #samples div.
+      *
+      * First we make a jQuery object called $sample that is just an empty list item.
+      *
+      **/
+      var $sample = $('<li></li>');
+
+      /**
+      *
+      * We then add the class "sample" to the $sample jQuery object.
+      *
+      **/
+      $sample.addClass('sample');
+
+      /**
+      *
+      * We now construct the date div which will be appended to the sample list item. We use
+      * the getMonth(), getDate() and getFullYear() functions of the date object to generate
+      * the current date, separated by slashes.
+      *
+      **/
+      var $date = $('<div class="date">'
+        + date.getMonth()
+        + '/'
+        + date.getDate()
+        + '/'
+        + date.getFullYear()
+        + '</div>');
+
+      /**
+      *
+      * Below we construct the time object using the getHours(), getMinutes() and getSeconds()
+      * functions of the date object, which we wrap in the helper function, pad(), that we
+      * defined above to ensure a leading zero for single digit numbers.
+      *
+      **/
+      var $time = $('<div class="time">' 
+        + pad( date.getHours() )
+        + ':'
+        + pad( date.getMinutes() )
+        + ':'
+        + pad( date.getSeconds() )
+        + '</div>');
+
+      /**
+      *
+      * Now we create the payload, a div that will have an inline styled background-color
+      * in rgba values (red, green, blue and an alpha value between 0-1 to control opacity) that will
+      * determine the color that is printed to the screen.
+      *
+      **/
+      var $payload = $('<div class="payload" style="background-color:rgba(0,0,255,'+data+')"></div>');
+
+      /**
+      *
+      * Here we append the $date, $time and $payload jQuery objects to the $sample jQuery object, in that
+      * order, which will keep $date at the top (which corresponds to the far left, as the CSS will stipulate
+      * that any DOM element with a "date" class will float left), followed by $time and finally the $payload.
+      *
+      **/
+      $sample.append($date).append($time).append($payload);
+
+      /**
+      *
+      * Finally, we prepend (ie. insert at the top) the now complete $smaple jQuery object, which is made up of
+      * date, time and payload, of the #samples DOM element, which is an unordered list element (<ul>). The CSS
+      * file will ensure that each of these samples is the same given height in pixels, and the full width of
+      * their containing element, so they will span exactly one line and stack up vertically, with the most current
+      * sample at the top of the page.
+      *
+      **/
+      $('#samples').prepend($sample);
 
     });  
   </script>
