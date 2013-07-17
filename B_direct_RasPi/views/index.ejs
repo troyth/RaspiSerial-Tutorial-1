@@ -96,9 +96,10 @@
       * in length. This will be applied below.
       *
       **/
-      function pad(numberString){
-        if(numberString.length < 2){
-          return '0'+numberString;
+      function pad(number){
+        number = parseInt(number);
+        if(number < 10){
+          return '0'+number;
         }
       }
 
