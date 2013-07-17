@@ -147,16 +147,6 @@ board.on("ready", function() {
 
   /**
   *
-  * Block comment
-  *
-  
-  board.repl.inject({
-    pot: photoresistor
-  });**/
-
-
-  /**
-  *
   * Here you will bind an anonymous function to the photoresistor read event that is triggered
   * every N milliseconds, as set up above. The anonymous function has two values passed to it:
   * an error (err), which will be null if there is no error and will contain an error message
@@ -183,7 +173,6 @@ board.on("ready", function() {
     io.emit('sendIt', value );
   });
 });
-
 
 /**
 *
