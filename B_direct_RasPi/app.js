@@ -142,7 +142,7 @@ board.on("ready", function() {
   
   photoresistor = new five.Sensor({
     pin: "A2",//connect to analog pin 2 on the Arduino
-    freq: 1000//update the value every this many milliseconds and trigger a "read" event
+    freq: 4000//update the value every this many milliseconds and trigger a "read" event
   });
 
   /**
