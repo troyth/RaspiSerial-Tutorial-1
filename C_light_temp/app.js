@@ -104,7 +104,7 @@ var io = require('socket.io').listen(server);
 *
 **/
 var five = require("johnny-five"),
-    board, photoresistor, INTERVAL_ID;
+    board, photoresistor, thermistor;
 
 /**
 *
@@ -142,7 +142,7 @@ board.on("ready", function() {
   
   photoresistor = new five.Sensor({
     pin: "A2",//connect to analog pin 2 on the Arduino
-    freq: 900000//update the value every this many milliseconds and trigger a "read" event
+    freq: 3000//update the value every this many milliseconds and trigger a "read" event
   });
 
   /**
@@ -156,10 +156,10 @@ board.on("ready", function() {
   **/
   photoresistor.on("read", function( err, value ) {
     /* Here we just log the value to the Raspberry Pi console */
-    console.log( "---the value from the sensor: " + value );
-	if(isNaN(value)){
-		process.exit(1);
-	}
+    console.log( "---the value from the LIGHT sensor: " + value );
+  	if(isNaN(value)){
+  		process.exit(1);
+  	}
     /**
     *
     * This is the key bit of the code that connects the "read" event listener of the photoresistor to
@@ -172,9 +172,29 @@ board.on("ready", function() {
     * emit() function triggers a "sendIt" event that carries the value of the input as its payload.
     *
     **/
-    io.emit('sendIt', value );
+    io.emit('readLight', value );
+  });
+
+
+  thermistor = new five.Sensor({
+    pin: "A0",//connect to analog pin 2 on the Arduino
+    freq: 3503,//update the value every this many milliseconds and trigger a "read" event
+    range: [0, 1000]
+  });
+
+  thermistor.on("read", function(err, value){
+    console.log( "---the value from the TEMPERATURE sensor: " + value );
+    if(isNaN(value)){
+      process.exit(1);
+    }
+
+    io.emit('readTemp', value );
   });
 });
+
+
+  
+
 
 /**
 *
@@ -203,15 +223,14 @@ io.sockets.on('connection', function(socket){
   * the anonymous function is called, which has access to the payload in the parameter called val.
   *
   **/
-  io.on('sendIt', function(val){
+  io.on('readLight', function(val){
     /**
     *
     * We first log a new line and then the data to send along the web socket to the new browser client
     * in the Raspberry Pi console.
     *
     **/
-    console.log('');
-    console.log('***data to send is '+ val);
+    console.log('\n***LIGHT data to send is '+ val);
 
     /**
     *
@@ -220,7 +239,26 @@ io.sockets.on('connection', function(socket){
     * and handling the "sendData" event.
     *
     **/
-    socket.emit('sendData', val);
+    socket.emit('sendLight', val);
+  });
+
+  io.on('readTemp', function(val){
+    /**
+    *
+    * We first log a new line and then the data to send along the web socket to the new browser client
+    * in the Raspberry Pi console.
+    *
+    **/
+    console.log('\n***TEMP data to send is '+ val);
+
+    /**
+    *
+    * Finally, we emit a "sendData" event with the payload of val along the socket to the browser client.
+    * The browser can access this value, the value of the analog photoresistor sensor, by listending for
+    * and handling the "sendData" event.
+    *
+    **/
+    socket.emit('sendTemp', val);
   });
 });
 
