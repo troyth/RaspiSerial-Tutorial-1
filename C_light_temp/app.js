@@ -142,7 +142,7 @@ board.on("ready", function() {
   
   photoresistor = new five.Sensor({
     pin: "A2",//connect to analog pin 2 on the Arduino
-    freq: 3000//update the value every this many milliseconds and trigger a "read" event
+    freq: 300000//update the value every this many milliseconds and trigger a "read" event
   });
 
   /**
@@ -178,7 +178,7 @@ board.on("ready", function() {
 
   thermistor = new five.Sensor({
     pin: "A0",//connect to analog pin 2 on the Arduino
-    freq: 3503,//update the value every this many milliseconds and trigger a "read" event
+    freq: 300101,//update the value every this many milliseconds and trigger a "read" event
     range: [0, 1000]
   });
 
