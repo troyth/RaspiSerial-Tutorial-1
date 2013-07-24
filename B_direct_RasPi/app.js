@@ -23,7 +23,7 @@ var app = express();
 * engine (ejs is used here) is used to convert the views to HTML that can be served to web browsers.
 *
 **/
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 8080);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
@@ -142,7 +142,7 @@ board.on("ready", function() {
   
   photoresistor = new five.Sensor({
     pin: "A2",//connect to analog pin 2 on the Arduino
-    freq: 3000//update the value every this many milliseconds and trigger a "read" event
+    freq: 900000//update the value every this many milliseconds and trigger a "read" event
   });
 
   /**
@@ -157,7 +157,9 @@ board.on("ready", function() {
   photoresistor.on("read", function( err, value ) {
     /* Here we just log the value to the Raspberry Pi console */
     console.log( "---the value from the sensor: " + value );
-
+	if(isNaN(value)){
+		process.exit(1);
+	}
     /**
     *
     * This is the key bit of the code that connects the "read" event listener of the photoresistor to
