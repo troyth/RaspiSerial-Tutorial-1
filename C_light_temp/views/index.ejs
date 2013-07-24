@@ -54,7 +54,7 @@
       var celsius = -(100 * (parseInt(dataString) / 1000) - 50);
       console.log('temperature: '+ celsius + "°C");
       var opacity = celsius / 100;
-      $('#temp').text(celsius + "°C").css('color', "rgba(255, 0, 0,"+ opacity+")");
+      $('#temp').text(celsius.toFixed(1) + "°C").css('color', "rgba(255, 0, 0,"+ opacity+")");
     });
 
     /**
