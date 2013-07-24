@@ -22,6 +22,7 @@
         </ul>
       </div><!-- /#header -->
       <div id="main">
+        <div id="temp"></div>
         <ul id="samples">
           <!-- Javascript will be used to deposit samples here -->
         </ul><!-- /#time-list -->
@@ -52,6 +53,8 @@
     socket.on('sendTemp', function(dataString){
       var celsius = -(100 * (parseInt(dataString) / 1000) - 50);
       console.log('temperature: '+ celsius + "°C");
+      var opacity = celsius / 100;
+      $('#temp').text(celsius + "°C").css('color', "rgba(255, 0, 0,"+ opacity+")");
     });
 
     /**
